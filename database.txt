@@ -1,0 +1,8 @@
+signal_1,8,u,1
+signal_2,5,u,1
+signal_3,10,u,0.1
+signal_4,10,u,0.01
+signal_5,12,s,0.01
+signal_6,5,s,0.05
+signal_7,8,u,1
+signal_8,6,u,1
