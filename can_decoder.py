@@ -27,7 +27,7 @@ for line in f:
 # input CAN message
 #####################################
 can_message = input("Input the CAN message: ")
-# can_message = "A5, B6, A5, B6, A5, B6, A5, B6"        # for testing purpose
+# can_message = "A5, B6, F0, 00, B2, 97, C3, 04"        # for testing purpose
 can_message = can_message.split(",")
 
 can_bytes_list = []
