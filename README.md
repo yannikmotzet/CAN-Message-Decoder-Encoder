@@ -3,3 +3,7 @@ This python script will decode the values of the signals from a CAN datagram. Th
 
 #### structure of database.txt
 signal name, bit length, signedness (u (unsigned) or s (signed)), factor
+
+
+#### Requirements
+Python3 with numpy
