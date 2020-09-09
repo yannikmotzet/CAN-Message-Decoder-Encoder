@@ -5,7 +5,7 @@
 import numpy as np
 
 filepath_database = 'database.txt'
-input_dec = True            # True for dec input, False for hex input
+input_dec = False           # True for dec input, False for hex input
 paramater_number = 4        # number of signal parameter in database file
 
 # load the database
