@@ -1,8 +1,12 @@
+# date: 04.09.2020
+# author: Yannik Motzet
+# description: script to extract signal values of a CAN datagram
+
 import numpy as np
 
 filepath_database = 'database.txt'
+input_dec = True            # True for dec input, False for hex input
 paramater_number = 4        # number of signal parameter in database file
-
 
 # load the database
 #####################################
@@ -23,18 +27,23 @@ for line in f:
     database[counter, 3] = float(database_line[3])
     counter = counter + 1
 
-
 # input CAN message
 #####################################
 can_message = input("Input the CAN message: ")
 # can_message = "A5, B6, F0, 00, B2, 97, C3, 04"        # for testing purpose
+# can_message = "165, 182, 240, 0, 178, 151, 195, 4"    # for testing purpose
 can_message = can_message.split(",")
 
 can_bytes_list = []
 for message in can_message:
-    can_bytes_list.append(bin(int(message, 16))[2:].zfill(8))
+    if input_dec:
+        # input in dec
+        can_bytes_list.append(bin(int(message))[2:].zfill(8))
+    else: 
+        # input in hex
+        can_bytes_list.append(bin(int(message, 16))[2:].zfill(8))
 
-
+    
 # decode the CAN message
 #####################################
 signal_list = [None] * database.shape[0]
@@ -51,19 +60,17 @@ for i in range(database.shape[0]):      # iterate through database signals
         # delete last bit
         can_bytes_list[byte_index] = can_bytes_list[byte_index][:-1]
 
-
 # print result
 #####################################
 for i in range(database.shape[0]):
     print(database[i, 0] + ": ", end="")
     # unsigned
     if database[i, 2] == "u":
-        # print(type(signal_list[i]))
         signal_value = int(signal_list[i], 2) * database[i, 3]
     # unsigned
     elif database[i, 2] == "s":
         if signal_list[i][0] == "0":
             signal_value = int(signal_list[i], 2) * database[i, 3]
         elif signal_list[i][0] == "1":
-            signal_value = (int(signal_list[i], 2) - 2 **len(signal_list[i])) * database[i, 3]
-    print('{:g}'.format(signal_value))      # format method is to remove .0 in a value
+            signal_value = (int(signal_list[i], 2) - 2**len(signal_list[i])) * database[i, 3]
+    print('{:g}'.format(signal_value))      # format method removes .0 in a value
