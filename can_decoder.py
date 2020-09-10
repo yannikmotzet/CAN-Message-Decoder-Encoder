@@ -5,8 +5,9 @@
 import numpy as np
 
 filepath_database = 'database.txt'
-input_dec = False           # True for dec input, False for hex input
+input_dec = True            # True for dec input, False for hex input
 paramater_number = 4        # number of signal parameter in database file
+
 
 # load the database
 #####################################
@@ -27,20 +28,23 @@ for line in f:
     database[counter, 3] = float(database_line[3])
     counter = counter + 1
 
+
 # input CAN message
 #####################################
-can_message = input("Input the CAN message: ")
-# can_message = "A5, B6, F0, 00, B2, 97, C3, 04"        # for testing purpose
-# can_message = "165, 182, 240, 0, 178, 151, 195, 4"    # for testing purpose
-can_message = can_message.split(",")
-
 can_bytes_list = []
-for message in can_message:
-    if input_dec:
-        # input in dec
+# input in dec
+if input_dec:
+    can_message_input = input("Input CAN message (dec): ")
+    # can_message = "165, 182, 240, 0, 178, 151, 195, 4"    # for testing purpose
+    can_message = can_message_input.split(",")
+    for message in can_message:
         can_bytes_list.append(bin(int(message))[2:].zfill(8))
-    else: 
-        # input in hex
+# input in hex
+else:
+    can_message_input = input("Input CAN message (hex): ")
+    # can_message = "A5, B6, F0, 00, B2, 97, C3, 04"        # for testing purpose
+    can_message = can_message_input.split(",")
+    for message in can_message:
         can_bytes_list.append(bin(int(message, 16))[2:].zfill(8))
 
     
@@ -60,8 +64,11 @@ for i in range(database.shape[0]):      # iterate through database signals
         # delete last bit
         can_bytes_list[byte_index] = can_bytes_list[byte_index][:-1]
 
+
 # print result
 #####################################
+print("-" * (len("Input CAN message (xxx): ") + len(can_message_input)))
+
 for i in range(database.shape[0]):
     print(database[i, 0] + ": ", end="")
     # unsigned
@@ -69,8 +76,10 @@ for i in range(database.shape[0]):
         signal_value = int(signal_list[i], 2) * database[i, 3]
     # unsigned
     elif database[i, 2] == "s":
+        # positive sign
         if signal_list[i][0] == "0":
             signal_value = int(signal_list[i], 2) * database[i, 3]
+        # negative sign
         elif signal_list[i][0] == "1":
             signal_value = (int(signal_list[i], 2) - 2**len(signal_list[i])) * database[i, 3]
     print('{:g}'.format(signal_value))      # format method removes .0 in a value
