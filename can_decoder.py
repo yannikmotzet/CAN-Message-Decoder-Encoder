@@ -115,8 +115,7 @@ def encode_can_message(signal_values, filepath):
         signal_values[i] = round(float(signal_values[i]) / float(database[i, 3]))
         # transfer in binary
         if signal_values[i] < 0 and database[i, 2] == "s":
-            bit_length = len(str(bin(int(signal_values[i]*(-1)))[2:]))
-            signal_values[i] = int(2**bit_length) + signal_values[i]
+            signal_values[i] = int(2**database[i, 1]) + signal_values[i]
         signal_values[i] = bin(int(signal_values[i]))[2:].zfill(database[i, 1])
 
     bytes_list = [None] * database.shape[0]
@@ -138,7 +137,8 @@ def encode_can_message(signal_values, filepath):
 
     # transfer in hex
     for element in bytes_list:
-        print(hex(int(element, 2))[2:], end=', ')
+        # print(hex(int(element, 2))[2:], end=', ')
+        print(int(element, 2), end=', ')
 
 
 if __name__ == "__main__":
