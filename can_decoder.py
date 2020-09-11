@@ -1,11 +1,11 @@
 # date: 04.09.2020
 # author: Yannik Motzet
-# description: script to extract signal values of a CAN datagram
+# description: script to extract signal values of a CAN datagram and vice versa
 
 import numpy as np
 
-is_encode = False            # True for encoding, False for decoding
-is_input_decimal = False     # True for dec input, False for hex input
+is_decode = True        # True for decoding, False for encoding
+is_decimal = False      # True for dec input/output, False for hex input/output
 
 filepath_database = 'database.txt'
 paramater_number = 4        # number of signal parameter in database file
@@ -107,22 +107,26 @@ def request_signal_values(filepath):
     return signal_values
 
 
-def encode_can_message(signal_values, filepath):
+def encode_can_message(signal_values, is_output_dec, filepath):
     database = load_database(filepath)
 
     for i in range(len(signal_values)):
         # divide by factor
         signal_values[i] = round(float(signal_values[i]) / float(database[i, 3]))
-        # transfer in binary
-        if signal_values[i] < 0 and database[i, 2] == "s":
+        # check for negative values and signedness
+        if signal_values[i] < 0 and database[i, 2] == "s":      
             signal_values[i] = int(2**database[i, 1]) + signal_values[i]
+        # transfer to binary
         signal_values[i] = bin(int(signal_values[i]))[2:].zfill(database[i, 1])
 
     bytes_list = [None] * database.shape[0]
     byte_index = 0
     bit_index = 0
-    for i in range(database.shape[0]):      # iterate through database signals
-        for j in range(database[i, 1]):     # itarate through length of signal
+
+    # iterate through database signals
+    for i in range(database.shape[0]):   
+        # itarate through length of signal   
+        for j in range(database[i, 1]):     
             if bit_index == 8:
                 byte_index = byte_index + 1
                 bit_index = 0
@@ -135,16 +139,22 @@ def encode_can_message(signal_values, filepath):
             # delete last bit
             signal_values[i] = signal_values[i][:-1]
 
-    # transfer in hex
+    # transfer to hex
+    hex_value_list = []
     for element in bytes_list:
-        # print(hex(int(element, 2))[2:], end=', ')
-        print(int(element, 2), end=', ')
+        if is_output_dec:
+            hex_value_list.append(int(element, 2))
+        else:
+            hex_value_list.append(hex(int(element, 2))[2:])        
+
+    return hex_value_list
 
 
 if __name__ == "__main__":
 
-    if is_encode:
-        if is_input_decimal:
+    # decode CAN message
+    if is_decode:
+        if is_decimal:
             # can_message_input = "165, 182, 240, 0, 178, 151, 195, 4"    # for testing purpose
             can_message_input = input("Input CAN message (dec): ")
         else:
@@ -152,12 +162,18 @@ if __name__ == "__main__":
             can_message_input = input("Input CAN message (hex): ")
     
         # extract signal values from CAN message
-        signal_values = decode_can_message(can_message_input, is_input_decimal, filepath_database)
+        signal_values = decode_can_message(can_message_input, is_decimal, filepath_database)
 
         # print signal values
         print("-" * (len("Input CAN message (xxx): ") + len(can_message_input)))
         for value in signal_values:
             print(value)
+
+    # encode CAN message
     else:
         signal_values = request_signal_values(filepath_database)
-        encode_can_message(signal_values, filepath_database)
+        hex_bytes = encode_can_message(signal_values, is_decimal, filepath_database)
+        print("-" * 30)
+        print("CAN message: ")
+        for byte in hex_bytes:
+            print(byte, end=', ')
