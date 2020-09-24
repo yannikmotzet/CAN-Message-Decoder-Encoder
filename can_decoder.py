@@ -4,8 +4,8 @@
 
 import numpy as np
 
-is_decode = True        # True for decoding, False for encoding
-is_decimal = True      # True for dec input/output, False for hex input/output
+is_decode = False        # True for decoding, False for encoding
+is_decimal = False      # True for dec input/output, False for hex input/output
 
 filepath_database = 'database.txt'
 paramater_number = 4        # number of signal parameter in database file
@@ -168,10 +168,17 @@ if __name__ == "__main__":
 
     # encode CAN message
     else:
+        if is_decimal: print("Please enter signal values (dec).")
+        else: is_decimal: print("Please enter signal values (hex).")
         signal_values = request_signal_values(filepath_database)
-        hex_bytes = encode_can_message(signal_values, is_decimal, filepath_database)
+        byte_values = encode_can_message(signal_values, is_decimal, filepath_database)
         print("-" * 30)
-        print("CAN message: ")
-        for byte in hex_bytes[:-1]:
-            print(byte, end=', ')
-        print(hex_bytes[-1])
+        if is_decimal:
+            print("CAN message (dec): ")
+        else:
+            print("CAN message (hex): ")
+
+        for byte in byte_values[:-1]:
+            print(byte.upper(), end=', ')
+        # print last byte without "," in the end
+        print(byte_values[-1].upper())
